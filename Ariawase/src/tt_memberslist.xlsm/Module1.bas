@@ -2,7 +2,7 @@ Attribute VB_Name = "Module1"
 Option Explicit
 
 '以下の定数は当番期交代時に見直しを行う定数
-Const MEIBO_PASSWORD As String = "touchiku83"   '集客担当毎に分割した名簿の読み取りパスワード
+Const MEIBO_PASSWORD As String = "touchiku84"   '集客担当毎に分割した名簿の読み取りパスワード
 
 
 '以下の定数はモジュール全体で使う定数
@@ -992,9 +992,18 @@ Private Sub MakeSyukyakuFile(opath As String, tantoki() As String, kinum() As In
     '新規ブックのSheet1～3を確認メッセージなしに削除
     Application.DisplayAlerts = False
     Workbooks(nbook).Worksheets("Sheet1").Delete
-    Workbooks(nbook).Worksheets("Sheet2").Delete
-    Workbooks(nbook).Worksheets("Sheet3").Delete
+    
+    '== Feb.9,2014 Yuji Ogihara ==
+    '新規ブック作成時のシート数はExcel 2007まで「3」, 2010以降は「1」(設定にて変更可能)
+    '以下の2行はシート数「3」のときの処理なので、2010以降では不要
+    'Workbooks(nbook).Worksheets("Sheet2").Delete
+    'Workbooks(nbook).Worksheets("Sheet3").Delete
     Application.DisplayAlerts = True
+
+    '== Feb.9,2014 Yuji Ogihara ==
+    '以降の行削除処理 "Delete" の高速化のため
+    'データ最終行からワークシート最終行までを削除
+    Range(lrow + 100 & ":" & Rows.Count).Delete
 
     '担当以外の期の情報を最終行から削除
     brow = lrow
@@ -1014,9 +1023,11 @@ Private Sub MakeSyukyakuFile(opath As String, tantoki() As String, kinum() As In
     Cells(ROW_TOPDATA, COL_KI).Select
   
     '新規ブックを担当者の名前を付加したファイル名で保存
+    '== Feb.9,2014 Yuji Ogihara ==
+    '保存形式を2007 以降の書式に変更、拡張子を"xlsx"に
     dastr = Format(Month(Date), "00") & Format(Day(Date), "00")
     Workbooks(nbook).SaveAs _
-       Filename:=opath & "\配布用\東京東筑会名簿【電話】to" & tantoki(tnum, 0) & dastr & ".xls", _
+       Filename:=opath & "\配布用\東京東筑会名簿【電話】to" & tantoki(tnum, 0) & dastr & ".xlsx", _
        Password:=MEIBO_PASSWORD
     ActiveWorkbook.Close
   Next tnum
