@@ -100,6 +100,10 @@ Const COL_RSLT_SUM As Integer = 26    '「当日出席」の列
 Const COL_MEMBER As Integer = 28      '「会員数」の列
 Const COL_TANTO As Integer = 30       '「集客担当」の列
 
+'== Mar.9,2014 Yuji Ogihara ==
+'2007 マクロ有効形式への変換およびファイル名称の定数化
+Const SAGYOHYO_FILENAME As String = "宛名シール・名札・出席者一覧表作成.xlsm" '作業表ファイル名称
+
 '
 '--- モジュール全体で使用する変数
 '    （集客担当等が修正したデータを転記するために使用する）
@@ -108,6 +112,9 @@ Public OrgBasicData As String       '原本の基本データ
 Public OrgRow As Long               '修正候補の原本シートでの行数
 Public NewBasicData As String       '修正候補の基本データ
 Public PostFlag As Integer          '基本データ修正を行うか否かのフラグ
+
+
+
 '
 
 
@@ -767,7 +774,9 @@ Sub 懇親会実績転記()
 End Sub
 '
 '「名簿」シートの「作業表転記」ボタンが押されたときの処理
-'「宛名シール・名札・出席者一覧表作成.xls」で宛名シールの作成等を行うために原本データを転記
+    '== Mar.9,2014 Yuji Ogihara ==
+    '保存形式を2007 以降の書式に変更、拡張子を"xlsm"に
+'「宛名シール・名札・出席者一覧表作成.xlsm」で宛名シールの作成等を行うために原本データを転記
 Sub 作業表転記()
 
   Dim lrow As Long       '名簿シートの最終行
@@ -776,8 +785,15 @@ Sub 作業表転記()
   OrgBook = ActiveWorkbook.Name      '開いているファイルの名前を原本として設定
 
   '処理に必要なファイルが開かれているか確認
-  If IsBookOpen("宛名シール・名札・出席者一覧表作成.xls") = False Then
-    MsgBox "「宛名シール・名札・出席者一覧表作成.xls」が開かれていません！" _
+     '== Mar.9,2014 Yuji Ogihara ==
+     '保存形式を2007 以降の書式に変更
+  'If IsBookOpen("宛名シール・名札・出席者一覧表作成.xls") = False Then
+  If IsBookOpen(SAGYOHYO_FILENAME) = False Then
+    '== Mar.9,2014 Yuji Ogihara ==
+    '保存形式を2007 以降の書式に変更
+    'MsgBox "「"宛名シール・名札・出席者一覧表作成.xls"」が開かれていません！" _
+
+    MsgBox "「" & SAGYOHYO_FILENAME & "」が開かれていません！" _
       & vbNewLine & "開いてからやり直して下さい。"
     End
   End If
@@ -789,7 +805,10 @@ Sub 作業表転記()
     Call 出欠確認
 
     '｢宛名シール・名札・出席者一覧表作成.xls｣を開き、貼付部分をクリア
-    Workbooks("宛名シール・名札・出席者一覧表作成.xls").Sheets("原本").Activate
+        '== Mar.9,2014 Yuji Ogihara ==
+        '保存形式を2007 以降の書式に変更
+    'Workbooks("宛名シール・名札・出席者一覧表作成.xls").Sheets("原本").Activate
+    Workbooks(SAGYOHYO_FILENAME).Sheets("原本").Activate
     Rows("2:65536").Delete Shift:=xlUp
     Range("A1").Select
  
@@ -801,7 +820,10 @@ Sub 作業表転記()
     Selection.Copy
  
    '｢宛名シール・名札・出席者一覧表作成.xls｣を開き、作業表に貼り付け
-    Workbooks("宛名シール・名札・出席者一覧表作成.xls").Sheets("原本").Activate
+        '== Mar.9,2014 Yuji Ogihara ==
+        '保存形式を2007 以降の書式に変更
+   'Workbooks("宛名シール・名札・出席者一覧表作成.xls").Sheets("原本").Activate
+    Workbooks(SAGYOHYO_FILENAME).Sheets("原本").Activate
     Selection.PasteSpecial Paste:=xlValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
     Range("A4").Select
  
@@ -810,7 +832,10 @@ Sub 作業表転記()
     Application.CutCopyMode = False
     Range("A5").Select
  
-    Workbooks("宛名シール・名札・出席者一覧表作成.xls").Sheets("原本").Activate
+    '== Feb.9,2014 Yuji Ogihara ==
+    '保存形式を2007 以降の書式に変更
+    'Workbooks("宛名シール・名札・出席者一覧表作成.xls").Sheets("原本").Activate
+    Workbooks(SAGYOHYO_FILENAME).Sheets("原本").Activate
 
  End If
  
