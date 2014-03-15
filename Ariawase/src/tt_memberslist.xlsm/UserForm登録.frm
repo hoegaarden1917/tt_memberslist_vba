@@ -26,8 +26,17 @@ Private Sub CommandButton1_Click()
    
   '郵便番号の文字列をセット
   zip = UserForm登録.TextBox4.Text & UserForm登録.TextBox5.Text
+  
+  '== Mar.15,2014 Yuji Ogihara ==
+  'ファイル"郵便番号ﾃﾞｰﾀ【全国版】"についての変更
+  '  1.  Excel 2007 形式(xlsx)への保存形式変更
+  '  2. 元データからのファイル作成手順簡素化に伴うデータフィールドの変更
        
-  abook = "郵便番号ﾃﾞｰﾀ【全国版】.xls"
+  
+  '== Mar.15,2014 Yuji Ogihara ==
+  ' xls -> xlsx
+  'abook = "郵便番号ﾃﾞｰﾀ【全国版】.xls"
+  abook = "郵便番号ﾃﾞｰﾀ【全国版】.xlsx"
   
        
   '郵便番号データファイルが開いているか確認
@@ -38,7 +47,10 @@ Private Sub CommandButton1_Click()
    End If
   
   '郵便番号を検索
-  With Workbooks(abook).Sheets("郵便番号1").Range("B1:B65001")
+  '== Mar.15,2014 Yuji Ogihara ==
+  '郵便番号の列を"C"に、範囲を「C列全体」に
+  'With Workbooks(abook).Sheets("郵便番号1").Range("B1:B65001")
+  With Workbooks(abook).Sheets("郵便番号1").Range("C:C")
     Set obj = .Find(zip, LookIn:=xlValues, LookAt:=xlPart, SearchDirection:=xlNext, _
                    MatchCase:=False, MatchByte:=False)
   End With
@@ -46,29 +58,37 @@ Private Sub CommandButton1_Click()
   If Not obj Is Nothing Then     'シート｢郵便番号1｣で郵便番号が検索さた場合
     With Workbooks(abook).Sheets("郵便番号1")
       nrow = .Range(obj.Address).Row
-      addrs(0) = .Cells(nrow, 3)
-      addrs(1) = .Cells(nrow, 4)
-      addrs(2) = .Cells(nrow, 5)
+      
+     '== Mar.15,2014 Yuji Ogihara ==
+     ' 住所の列番号を7-9 に変更
+     'addrs(0) = .Cells(nrow, 3)
+     'addrs(1) = .Cells(nrow, 4)
+     'addrs(2) = .Cells(nrow, 5)
+      addrs(0) = .Cells(nrow, 7)
+      addrs(1) = .Cells(nrow, 8)
+      addrs(2) = .Cells(nrow, 9)
     End With
       
   Else                           'シート｢郵便番号1｣で郵便番号が検索されない場合
-    With Workbooks(abook).Sheets("郵便番号2").Range("B1:B65001")
-      Set obj = .Find(zip, LookIn:=xlValues, LookAt:=xlPart, SearchDirection:=xlNext, _
-                      MatchCase:=False, MatchByte:=False)
-    End With
+     '== Mar.15,2014 Yuji Ogihara ==
+     ' シート「郵便番号2」廃止
+    'With Workbooks(abook).Sheets("郵便番号2").Range("B1:B65001")
+    '  Set obj = .Find(zip, LookIn:=xlValues, LookAt:=xlPart, SearchDirection:=xlNext, _
+    '                  MatchCase:=False, MatchByte:=False)
+    'End With
       
-    If obj Is Nothing Then     'シート｢クエリ2｣で郵便番号が検索さない場合
+    'If obj Is Nothing Then     'シート｢クエリ2｣で郵便番号が検索さない場合
       MsgBox "該当の郵便番号は検出されませんでした！"
       End
              
-    Else                         'シート｢クエリ2｣で郵便番号が検索された場合
-      With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号2")
-        nrow = .Range(obj.Address).Row
-        addrs(0) = .Cells(nrow, 3)
-        addrs(1) = .Cells(nrow, 4)
-        addrs(2) = .Cells(nrow, 5)
-      End With
-    End If
+    'Else                         'シート｢クエリ2｣で郵便番号が検索された場合
+    '  With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号2")
+    '    nrow = .Range(obj.Address).Row
+    '    addrs(0) = .Cells(nrow, 3)
+    '    addrs(1) = .Cells(nrow, 4)
+    '    addrs(2) = .Cells(nrow, 5)
+    '  End With
+    'End If
   End If
      
   'テキストボックス6～8に検索結果を入力

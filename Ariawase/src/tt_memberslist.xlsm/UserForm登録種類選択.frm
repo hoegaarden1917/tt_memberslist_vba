@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} UserForm登録種類選択 
    Caption         =   "登録"
-   ClientHeight    =   1005
+   ClientHeight    =   996
    ClientLeft      =   48
    ClientTop       =   336
    ClientWidth     =   4620
@@ -20,12 +20,23 @@ Option Explicit
 ' 2010.7.3　原本ファイルの名簿シートの列の並びの見直しにより修正
 Private Sub CommandButton1_Click()
 
+  '== Mar.15,2014 Yuji Ogihara ==
+  'ファイル名称の変数化
+  Dim abook As String
+  abook = "郵便番号ﾃﾞｰﾀ【全国版】.xlsx" '郵便番号データファイル名
+
+
   'オプションボタン1（入会）をクリックした場合
   If OptionButton1.Value = True Then
     
     '処理に必要なファイルが開かれているか確認する
-    If IsBookOpen("郵便番号ﾃﾞｰﾀ【全国版】.xls") = False Then
-      MsgBox "「郵便番号ﾃﾞｰﾀ【全国版】.xls」が開かれていません！" _
+    '== Mar.15,2014 Yuji Ogihara ==
+    'ファイル名称の変数化
+    'If IsBookOpen("郵便番号ﾃﾞｰﾀ【全国版】.xls") = False Then
+    '  MsgBox "「郵便番号ﾃﾞｰﾀ【全国版】.xls」が開かれていません！" _
+
+    If IsBookOpen(abook) = False Then
+      MsgBox "「 " & abook & "」が開かれていません！" _
           & vbNewLine & "開いてからやり直して下さい。"
       End
     End If
@@ -84,10 +95,26 @@ Private Sub ChkAllAddr()
   Dim obj As Range   '検索1
   Dim zrow As Long   '行2
   Dim addrs(3) As String
+  
+  '== Mar.15,2014 Yuji Ogihara ==
+  'ファイル"郵便番号ﾃﾞｰﾀ【全国版】"についての変更
+  '  1.  Excel 2007 形式(xlsx)への保存形式変更
+  '  2. 元データからのファイル作成手順簡素化に伴うデータフィールドの変更
+       
+  '== Mar.15,2014 Yuji Ogihara ==
+  ' xls -> xlsx
+  Dim abook As String      '郵便番号データファイル名
+  abook = "郵便番号ﾃﾞｰﾀ【全国版】.xlsx"
+  
    
   '処理に必要なファイルが開かれているか確認する
-  If IsBookOpen("郵便番号ﾃﾞｰﾀ【全国版】.xls") = False Then
-    MsgBox "「郵便番号ﾃﾞｰﾀ【全国版】.xls」が開かれていません！" _
+  '== Mar.15,2014 Yuji Ogihara ==
+  ' ファイル名称の変数化
+  'If IsBookOpen("郵便番号ﾃﾞｰﾀ【全国版】.xls") = False Then
+  '  MsgBox "「郵便番号ﾃﾞｰﾀ【全国版】.xls」が開かれていません！" _
+
+  If IsBookOpen(abook) = False Then
+    MsgBox "「 " & abook & " 」が開かれていません！" _
        & vbNewLine & "開いてからやり直して下さい。"
     End
   End If
@@ -105,38 +132,55 @@ Private Sub ChkAllAddr()
       Else    '変数｢Zip2｣が｢－｣、または空白でなければ、以下の処理を行う。
     
         '郵便番号を検索する。変数｢Obj｣は郵便番号が検索できたかどうかを表す。
-        With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号1").Range("B1:B65001")
+        
+        
+        '== Mar.15,2014 Yuji Ogihara ==
+        '郵便番号の列を"C"に、範囲を「C列全体」に
+        'With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号1").Range("B1:B65001")
+        With Workbooks(abook).Sheets("郵便番号1").Range("C:C")
+
           Set obj = .Find(zip1, LookIn:=xlValues, LookAt:=xlPart, SearchDirection:=xlNext, _
                     MatchCase:=False, MatchByte:=False)
         End With
    
         If Not obj Is Nothing Then      'シート｢郵便番号1｣で郵便番号が検索されれば、
-          With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号1")
+         '== Mar.15,2014 Yuji Ogihara ==
+         ' ファイル名称の変数化
+         ' With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号1")
+         With Workbooks(abook).Sheets("郵便番号1")
             zrow = .Range(obj.Address).Row
-            addrs(0) = .Cells(zrow, 3)
-            addrs(1) = .Cells(zrow, 4)
-            addrs(2) = .Cells(zrow, 5)
+            '== Mar.15,2014 Yuji Ogihara ==
+            ' 住所の列番号を7-9 に変更
+            '
+            'addrs(0) = .Cells(zrow, 3)
+            'addrs(1) = .Cells(zrow, 4)
+            'addrs(2) = .Cells(zrow, 5)
+            addrs(0) = .Cells(zrow, 7)
+            addrs(1) = .Cells(zrow, 8)
+            addrs(2) = .Cells(zrow, 9)
           End With
       
-        Else                             'シート｢郵便番号1｣で郵便番号が検索されなければ、
-          With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号2").Range("B1:B65001")
-            Set obj = .Find(zip1, LookIn:=xlValues, LookAt:=xlPart, SearchDirection:=xlNext, _
-                      MatchCase:=False, MatchByte:=False)
-          End With
+        Else                             'シート｢郵便番号1｣で郵便番号が検索されなければ
+         '== Mar.15,2014 Yuji Ogihara ==
+         ' シート「郵便番号2」廃止､
+         ' With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号2").Range("B1:B65001")
+         '   Set obj = .Find(zip1, LookIn:=xlValues, LookAt:=xlPart, SearchDirection:=xlNext, _
+         '             MatchCase:=False, MatchByte:=False)
+         ' End With
       
-          If obj Is Nothing Then     'シート｢郵便番号2｣で郵便番号が検索さなければ、該当行を選択し、以下のメッセージを表示し、照合を中断する。
+         ' If obj Is Nothing Then     'シート｢郵便番号2｣で郵便番号が検索さなければ、該当行を選択し、以下のメッセージを表示し、照合を中断する。
             Cells(nrow, 7).Select
             MsgBox "該当の郵便番号は検索されませんでした！"
             Exit Do
       
-          Else                         'シート｢郵便番号2｣で郵便番号が検索されれば、
-            With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号2")
-              zrow = .Range(obj.Address).Row
-              addrs(0) = .Cells(zrow, 3)
-              addrs(1) = .Cells(zrow, 4)
-              addrs(2) = .Cells(zrow, 5)
-            End With
-          End If
+         ' Else                         'シート｢郵便番号2｣で郵便番号が検索されれば、
+         '   With Workbooks("郵便番号ﾃﾞｰﾀ【全国版】.xls").Sheets("郵便番号2")
+         '     zrow = .Range(obj.Address).Row
+         '     addrs(0) = .Cells(zrow, 3)
+         '     addrs(1) = .Cells(zrow, 4)
+         '     addrs(2) = .Cells(zrow, 5)
+         '   End With
+         ' End If
         End If
         
         'H列と変数｢住所1｣、I列と変数｢住所2｣、J列と変数｢住所3｣が等しければ、何もしない。
